@@ -6,13 +6,13 @@ import sys
 from collections import defaultdict
 
 baseUrl = 'https://api.groupme.com/v3/'
-access_token = '?token=KZZMpZlBXr8b1Td0QTsHGLo7aIbPRWojZRHONX5L'
 members = defaultdict(list)
 
 def main(args):
-    global group_name
     try:
+        global group_name, image_url
         group_name = str(args[1])
+        access_token = '?token=' + str(args[2])
         get_groups = urllib2.Request(baseUrl+'groups'+access_token, headers={'Content-type': 'application/json'})
         get_groups_resp = urllib2.urlopen(get_groups)
         old_group_id = getOldGroupId(json.load(get_groups_resp))
@@ -23,7 +23,7 @@ def main(args):
         data = {
               "name": group_name,
               "share": True,
-              "image_url": "http://i.groupme.com/123456789"
+              "image_url": image_url
             }
         create = urllib2.Request(baseUrl+'groups'+access_token, data = json.dumps(data), headers={'Content-type': 'application/json'})
         destroy_resp = urllib2.urlopen(destroy)
@@ -38,6 +38,8 @@ def main(args):
 def getOldGroupId(get_groups_resp):
     for x in get_groups_resp['response']:
         if x['name'] == group_name:
+            global image_url
+            image_url = x['image_url']
             return x['id']
 
 def getMembers(get_members_resp):
